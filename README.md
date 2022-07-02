@@ -1,5 +1,5 @@
-# MAPDB_project
-Analysis of Covid-19 papers
+# MAPDB_Project
+# Analysis of Covid-19 papers
 
 This distributed computing project will be focused on the analysis of 1000 papers about
 COVID-19, SARS-CoV-2, and related coronaviruses. The dataset is a sub-sample of 1000
