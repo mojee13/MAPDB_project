@@ -7,5 +7,4 @@ items taken from the original dataset that is composed of more than 75000 (and s
 growing) papers. This dataset is a part of real-world research on COVID-19 named
 COVID-19 Open Research Dataset Challenge (CORD-19). The research and related challenges are available on the dedicated page on Kaggle: https://www.kaggle.com/alleninstitute-for-ai/CORD-19-research-challenge
 
-
-repo for final project  of MAPD B
+Using Dask and SSH protocol to link 3 Virtual Machines in Cloud Veneto for distributed computation
