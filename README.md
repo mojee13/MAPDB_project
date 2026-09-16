@@ -1,28 +1,115 @@
-# MAPDB_Project
-# Analysis of Covid-19 papers
+# Distributed Analysis of COVID-19 Research Literature (CORD-19)
 
-This distributed computing project will be focused on the analysis of 1000 papers about
-COVID-19, SARS-CoV-2, and related coronaviruses. The dataset is a sub-sample of 1000
-items taken from the original dataset that is composed of more than 75000 (and still
-growing) papers. This dataset is a part of real-world research on COVID-19 named
-COVID-19 Open Research Dataset Challenge (CORD-19). The research and related challenges are available on the dedicated page on Kaggle: https://www.kaggle.com/alleninstitute-for-ai/CORD-19-research-challenge
+[![Python](https://img.shields.io/badge/Python-3.8%2B-blue.svg)](https://www.python.org/)
+[![Dask](https://img.shields.io/badge/Dask-Distributed%20Computing-orange.svg)](https://dask.org/)
+[![Jupyter](https://img.shields.io/badge/Jupyter-Notebook-orange.svg)](https://jupyter.org/)
+[![University](https://img.shields.io/badge/University-Padova%20%7C%20Physics%20of%20Data-navy.svg)](https://www.unipd.it/)
 
-Using Dask to link 3 virtual machines (SSH protocol) in Cloud-Veneto for distributed computation
+A high-performance distributed computing project analyzing 1,000 full-text scientific papers from the **COVID-19 Open Research Dataset (CORD-19)**, conducted for the **Management and Analysis of Physics Data (MAPD - Part B)** course in the Physics of Data Master's degree at the University of Padua.
 
+---
 
-### Task 1 : Word counter distributed algorithm:
+## 📌 Overview & Distributed Architecture
 
+The CORD-19 dataset (*Allen Institute for AI / Kaggle*) comprises over 75,000 scientific publications on COVID-19, SARS-CoV-2, and historical coronaviruses. 
 
-* We implement a distributed algorithm to count the occurrences of all the words inside a list of documents using Bag data-structure of DASK. Here, we explain the algorithm step by step and in the end we wrap all the steps inside a single function in order to test the computational time required by the algorithm as a function of the number of cluster workers and the number of data partitions.
+This project deploys a **distributed Dask cluster** connecting **3 Virtual Machines via SSH on Cloud-Veneto** to perform parallel text mining, scalability benchmarking, and Natural Language Processing (NLP) embedding generation over structured JSON document collections.
 
-### Task 2: Chek computation time with different partitions and workers:
+```
+Cloud-Veneto Cluster Infrastructure:
+┌──────────────────────────────────────────────────────────┐
+│                   Dask Scheduler Client                  │
+└────────────────────────────┬─────────────────────────────┘
+                             │ (SSH Protocol)
+      ┌──────────────────────┼──────────────────────┐
+      ▼                      ▼                      ▼
+┌───────────┐          ┌───────────┐          ┌───────────┐
+│  Worker 1 │          │  Worker 2 │          │  Worker 3 │
+│  (VM #1)  │          │  (VM #2)  │          │  (VM #3)  │
+└───────────┘          └───────────┘          └───────────┘
+```
 
+---
 
-* Even in this case do multiple runs by changing the number of partitions and workers and then describe the behavior of the timings.
+## 🔬 Computational Tasks & Pipeline
 
-### Task3:  Get the embedding for the title of the papers:
+### Task 1: Distributed Bag Word Counter
+- Implements a parallel MapReduce-style word frequency algorithm utilizing Dask `Bag` data structures.
+- Parses full-text JSON documents, cleans punctuation/stop-words, and aggregates token frequencies across distributed cluster workers.
+- Encapsulated into a parameterized benchmark function to measure execution runtime against partition granularity.
 
+### Task 2: Scalability & Performance Benchmarking
+- Conducts experimental runs altering the **number of data partitions** ($P \in [1, 64]$) and **active worker nodes** (1 to 3 VMs).
+- Evaluates strong scaling (fixed data volume, increasing workers) and weak scaling performance laws to identify communication bottlenecks.
 
-* In NLP a common technique for performing analysis over a set of texts is to transform the text into a set of vectors each one representing a word inside a document. At the end of the pre-processing the document will be transformed into a list of vectors or a matrix of n × m where n is the number of words in the document and m is the size of the vector that represents the word.
+### Task 3: Paper Title Vector Embedding Generation
+- Transforms paper titles into dense vector representations ($n \times m$ matrices where $n$ is the word count and $m$ is the embedding dimension).
+- Applies text pre-processing (tokenization, lemmatization, stop-word filtering) and vector space modeling for downstream semantic clustering and literature categorization.
 
+---
 
+## 📄 JSON Document Schema
+
+The CORD-19 full-text documents are structured according to the following JSON schema:
+
+```json
+{
+  "paper_id": "<40-character sha1 hash>",
+  "metadata": {
+    "title": "<Paper Title>",
+    "authors": [{"first": "...", "last": "...", "affiliation": {...}}],
+    "abstract": [{"text": "...", "cite_spans": [], "section": "Abstract"}],
+    "body_text": [{"text": "...", "cite_spans": [], "section": "Introduction"}],
+    "bib_entries": {"BIBREF0": {"title": "...", "year": 2020, "DOI": ["..."]}},
+    "ref_entries": {"FIGREF0": {"text": "Caption...", "type": "figure"}}
+  }
+}
+```
+
+---
+
+## 📁 Repository Structure
+
+```
+MAPDB_project/
+├── Final_MAPD-B_ Mojtaba_Roya.ipynb    # Main distributed computation notebook
+├── json_schema.txt                      # Detailed CORD-19 JSON document schema
+├── Project_Description                  # Course assignment specifications
+├── Bibliography/                        # Reference literature & project guidelines
+│   └── Latest revision 30-05-2022.pdf   # Official MAPD-B project syllabus
+├── README.md                            # Project documentation
+└── .gitignore                           # Git ignore rules
+```
+
+---
+
+## 🛠️ Infrastructure & Setup
+
+### Prerequisites
+- Python 3.8+
+- Dask & Distributed (`pip install dask[complete] distributed`)
+- NLTK / spaCy / Gensim (`pip install nltk gensim spacy`)
+- Cloud-Veneto virtual machines with SSH key authentication.
+
+### Cluster Execution
+1. Configure SSH passwordless access across Cloud-Veneto VM nodes.
+2. Initialize Dask `SSHCluster` or `Client`:
+   ```python
+   from dask.distributed import Client, SSHCluster
+   
+   cluster = SSHCluster(
+       ["192.168.x.x", "192.168.x.y", "192.168.x.z"],
+       connect_options={"username": "ubuntu"},
+       worker_options={"nthreads": 2}
+   )
+   client = Client(cluster)
+   ```
+3. Open and run [`Final_MAPD-B_ Mojtaba_Roya.ipynb`](./Final_MAPD-B_%20Mojtaba_Roya.ipynb) in Jupyter.
+
+---
+
+## 👥 Authors & Course Information
+
+* **Authors**: Mojtaba Roshana & Roya ...
+* **Course**: Management and Analysis of Physics Data (MAPD - Part B)
+* **Degree**: M.Sc. in Physics of Data, Department of Physics and Astronomy, University of Padua, Italy.
